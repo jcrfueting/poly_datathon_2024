@@ -2,7 +2,7 @@
 ###     Script for loading the structured data into db
 ###
 
-from src.functions import *
+from functions import *
 
 ###     database connection
 

@@ -8,6 +8,7 @@ import pandas as pd
 import pandas.io.sql as sqlio
 import yfinance as yf
 import pandas_ta as ta
+from io import StringIO
 
 ### features
 
