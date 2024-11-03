@@ -9,6 +9,7 @@ import pandas.io.sql as sqlio
 import yfinance as yf
 import pandas_ta as ta
 from io import StringIO
+import psycopg
 
 ### features
 
@@ -57,9 +58,6 @@ def load_technical(ticker, conn, start_date='2017-01-01', end_date='2023-12-31')
         # Calculate returns
         data['Daily Return'] = data['Close'].pct_change()
         data['Adjusted Daily Return'] = data['Adj Close'].pct_change()
-        # Add company and ticker info
-        data['Company'] = company
-        data['Ticker'] = ticker
         # Calculate technical indicators
         data = calculate_technical_indicators(data)
         print(f"Technical data fetched for {ticker}")
@@ -76,7 +74,7 @@ def load_technical(ticker, conn, start_date='2017-01-01', end_date='2023-12-31')
     try:
         table = f"{ticker}_technical"
         cursor.execute(f"CREATE OR REPLACE TABLE {table}")
-        cursor.copy_from(csv, table)
+        cursor.copy_from(csv, table, sep=",")
         cursor.commit()
         return 0
 
