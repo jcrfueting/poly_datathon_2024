@@ -71,7 +71,7 @@ def load_technical(ticker, conn, start_date='2017-01-01', end_date='2023-12-31')
 
 
     # writing to database
-    csv = StringIO
+    csv = StringIO()
     data.to_csv(csv)
     csv.seek(0)
 

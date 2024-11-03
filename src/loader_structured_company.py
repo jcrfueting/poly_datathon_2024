@@ -33,7 +33,7 @@ metadata = get_table("metadata", awsconn)
 # c.execute("SELECT * FROM metadata").fetchall()
 
 # actual loading
-for t in metadata["ticker"]:
+for t in metadata["yf_ticker"]:
     load_technical(t, awsconn)
 
 
