@@ -76,15 +76,15 @@ def load_technical(ticker, conn, start_date='2017-01-01', end_date='2023-12-31')
     csv.seek(0)
 
     try:
-        table = f"{ticker}_technical"
-        cursor.execute(f"CREATE OR REPLACE TABLE {table}")
+        table = f"{ticker.replace(".TO", "")}_technical"
+        cursor.execute(f"CREATE TABLE {table}")
         cursor.copy_from(csv, table, sep=",")
         cursor.commit()
         return 0
 
     except (Exception, psycopg.DatabaseError) as error:
         print("Error: %s" % error)
-        cursor.rollback()
         cursor.close()
+        conn.rollback()
         return 1
 
