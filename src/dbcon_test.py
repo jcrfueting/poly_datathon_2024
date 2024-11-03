@@ -21,8 +21,9 @@ awsconn = AwsWrapperConnection.connect(
         psycopg.Connection.connect,
         host="database-1.cluster-czkmkismw47i.us-west-2.rds.amazonaws.com",
         dbname="datathon_db",
-        secrets_manager_secret_id="arn:aws:kms:us-west-2:668768749855:key/639153d6-69be-4d3b-93b3-7651fc881e4f",
-        plugins="aws_secrets_manager"
+        secrets_manager_secret_id="arn:aws:secretsmanager:us-west-2:668768749855:secret:rds!cluster-72ab118b-8a0b-491d-9c6b-4b0a49833510-bxwrMt",
+        secrets_manager_region="us-west-2",
+	plugins="aws_secrets_manager"
 )
 
 awscursor = awsconn.cursor()
