@@ -1,3 +1,7 @@
 boto3
 numpy
 ipykernel
+langchain
+langchain-community
+chromadb
+pypdf

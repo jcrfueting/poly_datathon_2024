@@ -149,3 +149,4 @@ cython_debug/
 *.pdf
 
 *.sqlite3
+data/
