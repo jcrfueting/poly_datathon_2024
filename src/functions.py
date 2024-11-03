@@ -76,7 +76,7 @@ def load_technical(ticker, conn, start_date='2017-01-01', end_date='2023-12-31')
     csv.seek(0)
 
     try:
-        table = f"{ticker.replace(".TO", "")}_technical"
+        table = f"{ticker.replace('.TO', '')}_technical"
         cursor.execute(f"CREATE TABLE {table}")
         cursor.copy_from(csv, table, sep=",")
         cursor.commit()
