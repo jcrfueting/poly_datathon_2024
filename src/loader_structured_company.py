@@ -28,7 +28,8 @@ import yfinance as yf
 import pandas_ta as ta
 from io import StringIO
 
-metadata = sqlio.read_sql_query("SELECT * FROM metadata", awsconn)
+
+metadata = get_table("metadata", awsconn)
 # c.execute("SELECT * FROM metadata").fetchall()
 
 # actual loading

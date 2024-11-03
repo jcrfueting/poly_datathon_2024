@@ -34,6 +34,10 @@ def calculate_technical_indicators(data):
 
 ### db management
 
+def get_table(name, conn):
+    cursor = conn.cursor()
+    cursor.execute(f"SELECT * FROM {name}")
+    return pd.DataFrame(cursor.fetchall(), columns=[col[0] for col in cursor.description])
 
 class LoaderException(Exception):
     """
