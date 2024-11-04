@@ -1,6 +1,6 @@
 # POLY_DATATHON_2024: AI Financial Analyst - TEAM #16
 
-URL : http://34.216.224.65:8501
+The application will be accessible at : http://34.216.224.65:8501
 
 ## Overview
 
@@ -97,16 +97,14 @@ To start the application, use the following command:
 streamlit run app.py
 ```
 
-The application will be accessible at http://localhost:8501.
-
 Application Sections
 
 	1.	Dashboards:
-	•	Visualizes historical stock prices and financial indicators for selected companies.
-	•	Use the sidebar to choose a company and time range for data display.
-	•	Displays metrics such as dividend rate, EBITDA margins, price-to-book ratio, and more.
+        •	Visualizes historical stock prices and financial indicators for selected companies.
+        •	Use the sidebar to choose a company and time range for data display.
+        •	Displays metrics such as dividend rate, EBITDA margins, price-to-book ratio, and more.
 	2.	AI Financial Analyst:
-	•	Upload a financial report PDF to analyze and interact with the AI assistant.
-	•	The assistant provides summaries, answers to questions, and sector-specific insights.
-	•	Choose a company and year to get relevant financial highlights and…
+        •	Upload a financial report PDF to analyze and interact with the AI assistant.
+        •	The assistant provides summaries, answers to questions, and sector-specific insights.
+        •	Choose a company and year to get relevant financial highlights and…
 
