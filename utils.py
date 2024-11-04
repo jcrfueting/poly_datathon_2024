@@ -140,23 +140,21 @@ def assemble_rag_query(template_dir):
     return query
 
 
-def assemble_analysis_prompt(content, template_dir):
-    with open(template_dir, "rb") as f:
-        settings = tomllib.load(f)
+# def assemble_analysis_prompt(content, template_dir):
+#     with open(template_dir, "rb") as f:
+#         settings = tomllib.load(f)
 
-    message = [
-        {"role" : "user", "content" : [{"text" : settings['role_prompt']}, 
-                                       {"text" : settings['task_prompt']},
-                                       {"text" : settings['example_prompt']},
-                                       {"text" : settings['reasoning_prompt']},
-                                       {"text" : settings['output_prompt']},
-                                       {"text" : f">>>>>\n{content}\n<<<<<"},
-                                       {"text" : settings['instruction_prompt']}]}
-    ]
-    return message
+#     message = [
+#         {"role" : "user", "content" : [{"text" : settings['role_prompt']}, 
+#                                        {"text" : settings['task_prompt']},
+#                                        {"text" : settings['example_prompt']},
+#                                        {"text" : settings['reasoning_prompt']},
+#                                        {"text" : settings['output_prompt']},
+#                                        {"text" : f">>>>>\n{content}\n<<<<<"},
+#                                        {"text" : settings['instruction_prompt']}]}
+#     ]
+#     return message
     
-
-
 
 
 def append_prompt(template_dir):
@@ -167,6 +165,15 @@ def append_prompt(template_dir):
                settings['task_prompt'], 
                settings['example_prompt'], 
                settings['reasoning_prompt']]
+    return "\n".join(prompts)
+
+def append_prompt_chatbot(message, template_dir):
+    with open(template_dir, "rb") as f:
+        settings = tomllib.load(f)
+    print(message)
+    prompts = [settings['instruction_prompt'], 
+               settings['task_prompt'],
+               message]
     return "\n".join(prompts)
     
 
@@ -181,6 +188,19 @@ def assemble_analysis_prompt(content, template_dir):
                                        {"text" : settings['reasoning_prompt']},
                                        {"text" : settings['output_prompt']},
                                        {"text" : f">>>>>\n{content}\n<<<<<"},
+                                       {"text" : settings['instruction_prompt']}]}
+    ]
+    return message
+
+def assemble_chat_prompt(new_message, template_dir):
+    with open(template_dir, "rb") as f:
+        settings = tomllib.load(f)
+
+    message = [
+        {"role" : "user", "content" : [{"text" : settings['role_prompt']}, 
+                                       {"text" : settings['task_prompt']},
+                                       {"text" : settings['output_prompt']},
+                                       {"text" : f">>>>>\n{new_message}\n<<<<<"},
                                        {"text" : settings['instruction_prompt']}]}
     ]
     return message
@@ -219,37 +239,54 @@ def extract_relevent_and_prompt_llm(client, model_id, query_pipeline, template_d
     analysis_prompt = assemble_analysis_prompt(content, template_dir)
     response = query_llm(analysis_prompt, client, model_id)
     return response, [r.meta['page'] for r in relevant_results]
-    # try:
-    #     response_dict = json.loads(response) 
-    #     response_dict['pages'] = [r.meta['page'] for r in relevant_results]
 
-    #     return response, response_dict
-    # except:
-    #     print("Invalid format returned by LLM")
-    #     return response
+def extract_relevent_and_prompt_llm_chatbot(message, client, model_id, query_pipeline, template_dir, top_k = 10):
+    query = append_prompt_chatbot(message['content'], template_dir)
+    
+    print("$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$\n\n\n")
+    print(query)
+    print("$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$\n\n\n")
+
+    result = query_pipeline.run({"text_embedder":{"text": query}})
+
+    relevant_results = result['retriever']['documents'][:top_k]
+
+    relevant_results = sorted(relevant_results, key = lambda x : x.meta['page'])
+
+    content = "\n\n -------------------- \n\n".join([d.content for d in relevant_results])
+
+    content += f"\n\n -------------------- \n\n Based on the previous content, Answer to the following question:\n{message}"
+
+    chat_prompt = assemble_chat_prompt(content, template_dir)
+
+    # print("$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$\n\n\n")
+    # print(chat_prompt)
+    # print("$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$\n\n\n")
+    
+    response = query_llm(chat_prompt, client, model_id)
+    return response, [r.meta['page'] for r in relevant_results]
+
+def llm_pipeline_chatbot(message, client, model_id, query_pipeline, name):
+    response, pages = extract_relevent_and_prompt_llm_chatbot(
+        message, 
+        client, 
+        model_id, 
+        query_pipeline, 
+        "./templates/chatbot.toml", top_k = 5)
+    
+    return response, pages
+
     
 def llm_pipeline_basic(client, model_id, query_pipeline, name, with_delays = 1):
     response, pages = extract_relevent_and_prompt_llm(client, model_id, query_pipeline, "./templates/analysis_basic_indicators.toml", top_k = 10)
     return response, pages
-    analysis['basic'] = {'text' : response1} if len(response1) == 1 else {'text' : response1[0], 'obj' : response1[1]}
-    time.sleep(with_delays)
-
-    # response2 = extract_relevent_and_prompt_llm(query_pipeline, "../templates/analysis_sector.toml", top_k = 10)
-    # analysis['sectore'] = {'text' : response2} if len(response2) == 1 else {'text' : response2[0], 'obj' : response2[1]}
-    # time.sleep(with_delays)
-
-    # response3 = extract_relevent_and_prompt_llm(query_pipeline, "../templates/analysis_sentiment.toml", top_k = 10)
-    # analysis['sentiment'] = {'text' : response3} if len(response3) == 1 else {'text' : response3[0], 'obj' : response3[1]}
-    # time.sleep(with_delays)
-
-    return analysis
 
 def llm_pipeline_sector(client, model_id, query_pipeline, name, with_delays = 1):
     response, pages = extract_relevent_and_prompt_llm(client, model_id, query_pipeline, "./templates/analysis_sector.toml", top_k = 10)
     return response, pages
 
 def llm_pipeline_sentiment(client, model_id, query_pipeline, name, with_delays = 1):
-    response, pages = extract_relevent_and_prompt_llm(client, model_id, query_pipeline, "../templates/analysis_sentiment.toml", top_k = 10)
+    response, pages = extract_relevent_and_prompt_llm(client, model_id, query_pipeline, "./templates/analysis_sentiment.toml", top_k = 10)
     return response, pages
 
 
@@ -267,6 +304,23 @@ def get_report_name(company_name, year, directory_path):
     fuzz_ratios = [(f, fuzz.ratio(f, report_query)) for f in files]
     report = sorted(fuzz_ratios, key = lambda x : -x[1])[0][0]
     return f"{directory_path}{report}"
+
+def ai_financial_assistant_chatbot(message, client, model_id, embedder_model_id, company_name, year):
+    directory_path = './data/doc_store/'
+
+    report_name = get_report_name(company_name, year, directory_path)
+
+    document_store = InMemoryDocumentStore.load_from_disk(report_name)
+
+    query_pipeline = Pipeline()
+    query_pipeline.add_component("text_embedder", AmazonBedrockTextEmbedder(model=embedder_model_id))
+    query_pipeline.add_component("retriever", InMemoryEmbeddingRetriever(document_store=document_store))
+    query_pipeline.connect("text_embedder.embedding", "retriever.query_embedding")
+
+    response, pages = llm_pipeline_chatbot(message, client, model_id, query_pipeline, report_name)
+
+    return response, pages
+
 
 def ai_financial_assistant(client, model_id, embedder_model_id, company_name, year, section):
     directory_path = './data/doc_store/'
@@ -289,3 +343,33 @@ def ai_financial_assistant(client, model_id, embedder_model_id, company_name, ye
         response, pages = llm_pipeline_sentiment(client, model_id, query_pipeline, report_name)
 
     return response, pages
+
+def format_chat_history(history):
+    conversation = []
+
+    
+    new_message = history[-1]['content']
+
+    prev_message = None
+    for message in history[1:-1]:
+        if prev_message is None:
+
+            conversation.append(dict(role = message['role'],
+                                    content = [{"text" : message['content']}]))
+            
+            prev_message = message
+
+        else:
+            if prev_message['role'] == message['role']:
+                conversation[-1]['content'].append({"text" : message['content']})
+            else:
+                conversation.append(dict(role = message['role'],
+                                    content = [{"text" : message['content']}]))
+            
+                prev_message = message
+
+    new_message_conversation = assemble_chat_prompt(new_message, "./templates/chatbot.toml")
+
+    # conversation = [*conversation, *new_message_conversation]
+        
+    return new_message_conversation
