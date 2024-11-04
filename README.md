@@ -12,7 +12,7 @@ POLY_DATATHON_2024 is an AI-powered financial analyst tool that provides intelli
 This application is built with Streamlit, leveraging NLP and machine learning models to process and analyze financial data from various sources.
 
 ## Project Structure
-
+```bash
 POLY_DATATHON_2024
 │
 ├── .streamlit                # Streamlit configuration files
@@ -51,6 +51,7 @@ POLY_DATATHON_2024
 ├── README.md                 # Project documentation
 ├── requirements.txt          # Required Python packages
 └── utils.py                  # Utility functions
+```
 
 ## Getting Started
 
