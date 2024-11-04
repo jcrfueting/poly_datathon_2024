@@ -5,3 +5,6 @@ langchain
 langchain-community
 chromadb
 pypdf
+aws_advanced_python_wrapper
+psycopg2
+tqdm
