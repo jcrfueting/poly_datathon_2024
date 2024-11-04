@@ -45,6 +45,20 @@ class LoaderException(Exception):
     """
     pass
 
+def convert(dt):
+    """
+    converts a pandas dtype.name to corresponding PostgreSQL type
+    """
+    match dt:
+        case "object":
+            return "text"
+        case "float64":
+            return "real"
+        case "int64":
+            return "integer"
+        case "datetime64[ns, UTC]":
+            return "text"
+
 
 def load_technical(ticker, conn, start_date='2017-01-01', end_date='2023-12-31'):
     """
@@ -72,14 +86,20 @@ def load_technical(ticker, conn, start_date='2017-01-01', end_date='2023-12-31')
 
     # writing to database
     csv = StringIO()
-    data.to_csv(csv)
+    data.to_csv(csv, index=False)
     csv.seek(0)
 
     try:
-        table = f"{ticker.replace('.TO', '')}_technical"
-        cursor.execute(f"CREATE TABLE {table}")
-        cursor.copy_from(csv, table, sep=",")
-        cursor.commit()
+        table = f'"{ticker}_technical"'
+        cursor.execute(f'CREATE TABLE {table} ()')
+        # print({k:v.name for (k,v) in data.dtypes.to_dict().items()})
+        {cursor.execute(f'ALTER TABLE {table} ADD COLUMN "{k}" {convert(v.name)}') 
+            for (k,v) in data.dtypes.to_dict().items()}
+        with cursor.copy(f'COPY {table} from STDIN WITH CSV HEADER') as copy:
+            while data := csv.read():
+                copy.write(data)
+        # cursor.copy_from(csv, table, sep=",")
+        conn.commit()
         return 0
 
     except (Exception, psycopg.DatabaseError) as error:
