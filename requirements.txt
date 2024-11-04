@@ -1,0 +1,12 @@
+numpy
+pandas
+frontend
+streamlit
+boto3
+haystack
+plotly
+langchain
+thefuzz
+transformers
+tomli
+yfinance

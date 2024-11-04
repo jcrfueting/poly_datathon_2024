@@ -7,6 +7,7 @@ from transformers import pipeline
 import fitz  # PyMuPDF
 import warnings
 from dashboards import plot_stock_with_indicators, display_stock_info
+from utils import ai_financial_assistant
 
 warnings.filterwarnings("ignore")
 
@@ -225,6 +226,23 @@ def financial_analyst_page():
     selected_stock = st.sidebar.selectbox("Select a stock:", [""] + stocks, index=0)
     selected_year = st.sidebar.selectbox("Select a year:", [""] + years, index=0)
 
+    analysis_sections = st.radio(
+        "Analysis:",
+        ["Key financial highlights", "Sector-specific", "Sentiment Analysis"],
+        index=0,
+        horizontal=True
+    )
+
+    report, pages = ai_financial_assistant(selected_stock, selected_year, section=analysis_sections)
+    
+    print(report)
+
+    st.write(f"These information were extracted based on the following pages in the report.\n{pages}")
+
+    st.write(report)
+
+
+
     # PDF file uploader
     uploaded_file = st.file_uploader("Upload the financial report PDF", type="pdf")
     if uploaded_file is not None:
@@ -251,5 +269,7 @@ if page == "Dashboards":
     dashboards_page()
 elif page == "Chatbot":
     chatbot_page()
+    pass
 elif page == "AI Financial Analyst":
     financial_analyst_page()
+    pass

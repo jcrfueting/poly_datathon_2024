@@ -226,19 +226,19 @@ def extract_relevent_and_prompt_llm(query_pipeline, template_dir, top_k = 10):
 
     analysis_prompt = assemble_analysis_prompt(content, template_dir)
     response = query_llm(analysis_prompt, client, model_id)
-    try:
-        response_dict = json.loads(response) 
-        response_dict['pages'] = [r.meta['page'] for r in relevant_results]
+    return response, [r.meta['page'] for r in relevant_results]
+    # try:
+    #     response_dict = json.loads(response) 
+    #     response_dict['pages'] = [r.meta['page'] for r in relevant_results]
 
-        return response, response_dict
-    except:
-        print("Invalid format returned by LLM")
-        return response
+    #     return response, response_dict
+    # except:
+    #     print("Invalid format returned by LLM")
+    #     return response
     
-def llm_pipeline(query_pipeline, name, with_delays = 1):
-    analysis = dict(name = name)
-
-    response1 = extract_relevent_and_prompt_llm(query_pipeline, "../templates/analysis_basic_indicators.toml", top_k = 10)
+def llm_pipeline_basic(query_pipeline, name, with_delays = 1):
+    response, pages = extract_relevent_and_prompt_llm(query_pipeline, "./templates/analysis_basic_indicators.toml", top_k = 10)
+    return response, pages
     analysis['basic'] = {'text' : response1} if len(response1) == 1 else {'text' : response1[0], 'obj' : response1[1]}
     time.sleep(with_delays)
 
@@ -252,11 +252,19 @@ def llm_pipeline(query_pipeline, name, with_delays = 1):
 
     return analysis
 
+def llm_pipeline_sector(query_pipeline, name, with_delays = 1):
+    response, pages = extract_relevent_and_prompt_llm(query_pipeline, "./templates/analysis_sector.toml", top_k = 10)
+    return response, pages
+
+def llm_pipeline_sentiment(query_pipeline, name, with_delays = 1):
+    response, pages = extract_relevent_and_prompt_llm(query_pipeline, "./templates/analysis_sentiment.toml", top_k = 10)
+    return response, pages
+
 
 def get_report_name(company_name, year, directory_path):
     all_files = [f for f in os.listdir(directory_path) if os.path.isfile(os.path.join(directory_path, f))]
 
-    files = [f for f in all_files if year.lower() in f.lower()]
+    files = [f for f in all_files if str(year).lower() in f.lower()]
 
     files2 = [f for f in files if company_name.lower() in f.lower()]
 
@@ -268,8 +276,8 @@ def get_report_name(company_name, year, directory_path):
     report = sorted(fuzz_ratios, key = lambda x : -x[1])[0][0]
     return f"{directory_path}{report}"
 
-def ai_financial_assistant(company_name, year):
-    directory_path = '../data/doc_store/'
+def ai_financial_assistant(company_name, year, section):
+    directory_path = './data/doc_store/'
 
     report_name = get_report_name(company_name, year, directory_path)
 
@@ -280,7 +288,12 @@ def ai_financial_assistant(company_name, year):
     query_pipeline.add_component("retriever", InMemoryEmbeddingRetriever(document_store=document_store))
     query_pipeline.connect("text_embedder.embedding", "retriever.query_embedding")
 
-    
-    analysis = llm_pipeline(query_pipeline, report_name)
+    if section == "Key financial highlights":
+        response, pages = llm_pipeline_basic(query_pipeline, report_name)
 
-    return analysis
+    elif section == "Sector-specific":
+        response, pages = llm_pipeline_sector(query_pipeline, report_name)
+    else:
+        response, pages = llm_pipeline_sentiment(query_pipeline, report_name)
+
+    return response, pages

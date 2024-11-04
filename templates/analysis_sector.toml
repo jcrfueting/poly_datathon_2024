@@ -1,8 +1,6 @@
 instruction_prompt = """
 Extract the sector specific indicators of the company in >>>>>CONTENT<<<<<< for the year of report and previous years if available in the report.
 You might not find the exact key performance indicators (KPIs) in ----- EXAMPLE -----. It is important to extract relevent key performance indicators (KPIs) based on the company and its sector. 
-Return the output as valid JSON.
-Any value or key element which is not mentioned should be replaced with N/A in the JSON output.
 The language of your output should always be in ENGLISH
 """
 
@@ -69,11 +67,5 @@ reasoning_prompt = """
 """
 
 output_prompt = """
-{
-    "general insight" : ...
-    "indicators" : [{
-        "name" : [NAME OF INDICATOR],
-        "insight: ,
-    }], ...
-    
-}"""
+Your output format should be a well structured markdown format showing all the requested information.
+"""

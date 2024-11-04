@@ -3,8 +3,6 @@ Extract and assess sentiment in executive comments over time to anticipate reven
 Executive comments includes Chief Executive Officer (CEO), Chief Operating Officer (COO), Chief Financial Officer (CFO), Chief Technology Officer (CTO) and Chief Marketing Officer (CMO), President.
 Extract the sentiment of their comments based on the >>>>>CONTENT<<<<<<.
 You might not find the comments of all the executive in the >>>>>CONTENT<<<<<<. 
-Return the output as valid JSON.
-Any value or key element which is not mentioned should be replaced with N/A in the JSON output.
 The language of your output should always be in ENGLISH
 """
 
@@ -37,28 +35,6 @@ Our investment in cybersecurity has significantly reduced vulnerabilities, resul
 
 """
 
-# ------START EXAMPLE 2------
-# Chief Operating Officer (COO) comment:
-# We successfully implemented new inventory management systems that improved stock turnover by 25%. This operational efficiency has enhanced our ability to meet customer demand and minimize excess inventory. As we expand into new markets, we remain focused on maintaining this level of service excellence.
-# ------END EXAMPLE 2------
-
-# ------START EXAMPLE 3------
-# Chief Financial Officer (CFO) comment:
-# While our revenue growth has been strong at 15%, we’ve faced increased costs in R&D that have impacted our margins. It’s critical that we evaluate our spending and adjust our forecasts accordingly. We will need to strike a balance between innovation and profitability to ensure long-term sustainability.
-# ------END EXAMPLE 3------
-
-
-# ------START EXAMPLE 5------
-# Chief Marketing Officer (CMO) comment:
-# This quarter saw a drop in consumer interest in our electric vehicle line, with sales declining by 10%. While we have strong branding and marketing campaigns in place, we need to reassess our strategy to better align with consumer preferences. We are committed to conducting thorough market research to address this challenge.
-# ------END EXAMPLE 5------
-
-# ------START EXAMPLE 6------
-# Chief Marketing Officer (CMO) comment:
-# We launched a new product line that has received overwhelmingly positive feedback, resulting in a 30% increase in market share. Our focus on sustainability and healthy options has resonated with consumers. We will leverage this momentum to explore further product innovations in the upcoming quarters
-# ------END EXAMPLE 6------
-
-
 reasoning_prompt = """
 Use the following criteria to assess the sentiment and prepare your response:
 - Does the comments highlights new topics about the company performance?
@@ -78,40 +54,6 @@ Sentiment: Positive
 
 """
 
-
-
-# ------REASONING EXAMPLE 2------
-# Focus Areas: Inventory management, operational efficiency, customer demand, market expansion.
-# Sentiment: Positive
-# ------REASONING EXAMPLE 2------
-
-# ------REASONING EXAMPLE 3------
-# Focus Areas: Revenue growth, cost management, R&D expenses, profitability.
-# Sentiment: Negative
-# ------REASONING EXAMPLE 3------
-
-# ------REASONING EXAMPLE 4------
-# Focus Areas: Cybersecurity, incident reduction, customer trust, technological innovation.
-# Sentiment: Positive
-# ------REASONING EXAMPLE 4------
-
-# ------REASONING EXAMPLE 5------
-# Focus Areas: Sales decline, branding, consumer preferences, market research.
-# Sentiment: Negative
-# ------REASONING EXAMPLE 5------
-
-# ------REASONING EXAMPLE 6------
-# Focus Areas: Product launch, market share growth, sustainability, product innovation.
-# Sentiment: Positive
-# ------REASONING EXAMPLE 6------
-
 output_prompt = """
-[
-    {
-        "role" : "",
-        "comment" : "",
-        "focus_area" : "",
-        "sentiment" : ""
-    }
-]
+Your output format should be a well structured markdown format showing all the requested information.
 """
