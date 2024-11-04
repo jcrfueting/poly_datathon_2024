@@ -12,6 +12,9 @@ import boto3
 
 warnings.filterwarnings("ignore")
 
+st.set_page_config(
+    page_title="Financial AI Assistant",
+)
 
 ##### READ THE DATA #####
 company_tickers = {
