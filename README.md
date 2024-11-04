@@ -104,7 +104,7 @@ Application Sections
         •	Use the sidebar to choose a company and time range for data display.
         •	Displays metrics such as dividend rate, EBITDA margins, price-to-book ratio, and more.
 	2.	AI Financial Analyst:
-        •	Upload a financial report PDF to analyze and interact with the AI assistant.
+        •	Upload a financial report PDF to analyze and interact with the AI assistant. (In future release)
         •	The assistant provides summaries, answers to questions, and sector-specific insights.
         •	Choose a company and year to get relevant financial highlights and…
 
