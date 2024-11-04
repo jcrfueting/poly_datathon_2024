@@ -81,13 +81,13 @@ POLY_DATATHON_2024
     ```
 
 4. Set up environment variables:
-    - Create a .env file in the root directory.
     - Add your AWS credentials:
-      env
-      AWS_ACCESS_KEY_ID=your_access_key
-      AWS_SECRET_ACCESS_KEY=your_secret_key
-      AWS_DEFAULT_REGION=your_region
       
+    ```bash
+    export AWS_ACCESS_KEY_ID=your_access_key
+    export AWS_SECRET_ACCESS_KEY=your_secret_key
+    export AWS_DEFAULT_REGION=your_region
+    ```
 
 ### Running the Application
 
