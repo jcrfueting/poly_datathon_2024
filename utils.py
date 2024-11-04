@@ -157,15 +157,7 @@ def assemble_analysis_prompt(content, template_dir):
     
 
 
-os.environ["AWS_ACCESS_KEY_ID"] = "AKIAZXNNZJEPQOQ6SCAT"
-os.environ["AWS_SECRET_ACCESS_KEY"] = "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"
-os.environ["AWS_DEFAULT_REGION"] = "us-west-2"
 
-embedder_model_id = "amazon.titan-embed-text-v2:0"
-
-model_id = "anthropic.claude-3-haiku-20240307-v1:0"
-
-client = boto3.client("bedrock-runtime", region_name="us-west-2")
 
 def append_prompt(template_dir):
     with open(template_dir, "rb") as f:
@@ -213,7 +205,7 @@ def document_embedder_pipline(file_path, embedder_model_id):
 
     return query_pipeline, document_store
 
-def extract_relevent_and_prompt_llm(query_pipeline, template_dir, top_k = 10):
+def extract_relevent_and_prompt_llm(client, model_id, query_pipeline, template_dir, top_k = 10):
     query = append_prompt(template_dir)
 
     result = query_pipeline.run({"text_embedder":{"text": query}})
@@ -236,8 +228,8 @@ def extract_relevent_and_prompt_llm(query_pipeline, template_dir, top_k = 10):
     #     print("Invalid format returned by LLM")
     #     return response
     
-def llm_pipeline_basic(query_pipeline, name, with_delays = 1):
-    response, pages = extract_relevent_and_prompt_llm(query_pipeline, "./templates/analysis_basic_indicators.toml", top_k = 10)
+def llm_pipeline_basic(client, model_id, query_pipeline, name, with_delays = 1):
+    response, pages = extract_relevent_and_prompt_llm(client, model_id, query_pipeline, "./templates/analysis_basic_indicators.toml", top_k = 10)
     return response, pages
     analysis['basic'] = {'text' : response1} if len(response1) == 1 else {'text' : response1[0], 'obj' : response1[1]}
     time.sleep(with_delays)
@@ -252,12 +244,12 @@ def llm_pipeline_basic(query_pipeline, name, with_delays = 1):
 
     return analysis
 
-def llm_pipeline_sector(query_pipeline, name, with_delays = 1):
-    response, pages = extract_relevent_and_prompt_llm(query_pipeline, "./templates/analysis_sector.toml", top_k = 10)
+def llm_pipeline_sector(client, model_id, query_pipeline, name, with_delays = 1):
+    response, pages = extract_relevent_and_prompt_llm(client, model_id, query_pipeline, "./templates/analysis_sector.toml", top_k = 10)
     return response, pages
 
-def llm_pipeline_sentiment(query_pipeline, name, with_delays = 1):
-    response, pages = extract_relevent_and_prompt_llm(query_pipeline, "./templates/analysis_sentiment.toml", top_k = 10)
+def llm_pipeline_sentiment(client, model_id, query_pipeline, name, with_delays = 1):
+    response, pages = extract_relevent_and_prompt_llm(client, model_id, query_pipeline, "../templates/analysis_sentiment.toml", top_k = 10)
     return response, pages
 
 
@@ -276,7 +268,7 @@ def get_report_name(company_name, year, directory_path):
     report = sorted(fuzz_ratios, key = lambda x : -x[1])[0][0]
     return f"{directory_path}{report}"
 
-def ai_financial_assistant(company_name, year, section):
+def ai_financial_assistant(client, model_id, embedder_model_id, company_name, year, section):
     directory_path = './data/doc_store/'
 
     report_name = get_report_name(company_name, year, directory_path)
@@ -289,11 +281,11 @@ def ai_financial_assistant(company_name, year, section):
     query_pipeline.connect("text_embedder.embedding", "retriever.query_embedding")
 
     if section == "Key financial highlights":
-        response, pages = llm_pipeline_basic(query_pipeline, report_name)
+        response, pages = llm_pipeline_basic(client, model_id, query_pipeline, report_name)
 
     elif section == "Sector-specific":
-        response, pages = llm_pipeline_sector(query_pipeline, report_name)
+        response, pages = llm_pipeline_sector(client, model_id, query_pipeline, report_name)
     else:
-        response, pages = llm_pipeline_sentiment(query_pipeline, report_name)
+        response, pages = llm_pipeline_sentiment(client, model_id, query_pipeline, report_name)
 
     return response, pages

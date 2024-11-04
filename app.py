@@ -8,6 +8,7 @@ import fitz  # PyMuPDF
 import warnings
 from dashboards import plot_stock_with_indicators, display_stock_info
 from utils import ai_financial_assistant
+import boto3
 
 warnings.filterwarnings("ignore")
 
@@ -51,6 +52,16 @@ relevant_attributes = [
     'dividendRate', 'dividendYield', 'beta', 'forwardPE', 'marketCap',
     'profitMargins', 'shortRatio', 'priceToBook', 'freeCashflow', 'ebitdaMargins'
 ]
+
+os.environ["AWS_ACCESS_KEY_ID"] = "AKIAZXNNZJEPQOQ6SCAT"
+os.environ["AWS_SECRET_ACCESS_KEY"] = "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"
+os.environ["AWS_DEFAULT_REGION"] = "us-west-2"
+
+embedder_model_id = "amazon.titan-embed-text-v2:0"
+
+model_id = "anthropic.claude-3-haiku-20240307-v1:0"
+
+client = boto3.client("bedrock-runtime", region_name="us-west-2")
 
 
 with open(os.path.join('data', 'tabular_data', 'technical_melted.pkl'), 'rb') as f:
@@ -233,13 +244,20 @@ def financial_analyst_page():
         horizontal=True
     )
 
-    report, pages = ai_financial_assistant(selected_stock, selected_year, section=analysis_sections)
-    
-    print(report)
+    if selected_stock and selected_year:
 
-    st.write(f"These information were extracted based on the following pages in the report.\n{pages}")
+        report, pages = ai_financial_assistant(client, 
+                                            model_id, 
+                                            embedder_model_id, 
+                                            selected_stock, 
+                                            selected_year, 
+                                            section=analysis_sections)
+        
+        print(report)
 
-    st.write(report)
+        st.write(f"These information were extracted based on the following pages in the report.\n{pages}")
+
+        st.write(report)
 
 
 
