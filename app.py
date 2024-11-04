@@ -14,6 +14,7 @@ warnings.filterwarnings("ignore")
 
 st.set_page_config(
     page_title="Financial AI Assistant",
+    layout = "wide",
 )
 
 ##### READ THE DATA #####
@@ -162,7 +163,7 @@ def dashboards_page():
             sector_table = display_stock_info(actual_data, filtered_data, company_tickers[selected_stock])
             st.write(sector_table)
             # Streamlit layout for comparison
-            st.title(f"Compare To: {company_tickers[selected_stock]}")
+            st.subheader(f"Compare To: {company_tickers[selected_stock]}")
 
             # Note: Limit to 4 stocks for the comparison, adjust as needed
             num_stocks = min(len(sector_table), 4)
@@ -175,7 +176,7 @@ def dashboards_page():
                 company_name, ticker = index  # Extract Company and Ticker from the index
                 with cols[i]:
                     # Display ticker and company name
-                    st.markdown(f"<h3>{ticker}</h3>", unsafe_allow_html=True)
+                    st.markdown(f"<h4>{ticker}</h4>", unsafe_allow_html=True)
                     st.write(f"{company_name}")
 
                     # Display required metrics
